@@ -1,24 +1,34 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { Topbar } from "../../components/Topbar";
 import  Select  from "react-select/";
 import DatePicker from "react-date-picker";
 import { useForm, Controller } from "react-hook-form";
-import { LabelError, Textarea } from "./styles";
-import { Label } from "../../components/Input/styles";
-import { FormGroup } from "../../globalStyles"
+import { Textarea } from "./styles";
+import { FormGroup, LabelError } from "../../globalStyles";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUsers, fetchCreateTask } from '../../store';
+import { Redirect } from "react-router-dom";
 
-const USERS = [ 
-    {value: 1, label: "Juan"}, 
-    {value: 2, label: "Luis"}, 
-    {value: 3, label: "María"}, 
-    {value: 4, label: "Jose"}, 
-    {value: 5, label: "Baltasar"},
-    {value: 6, label: "Gaspar"}
-];
+const CreateTask = ({title}) => {
 
-export const CreateTask = ({title}) => {
+    const dispatch = useDispatch();
+    const usersData = useSelector(state => state.user)
+    const redirectData = useSelector(state => state.redirect);
+    const [users, setUsers] = useState([]);
+
+    useEffect( () => {
+        dispatch(fetchUsers());
+    }, [])
+
+    useEffect( () => {
+        const userList = [];
+        usersData.users.map(user => {
+            userList.push({value: user._id, label: user.name})
+        });
+        setUsers(userList);
+    }, [usersData])
 
     const { 
         register, 
@@ -31,9 +41,14 @@ export const CreateTask = ({title}) => {
     } = useForm({ mode: 'onChange' });
 
     const onSubmitCreate = (data) => {
-        console.log('data form', data)
+        data.responsible = data.responsible.value;
+        data.collaborators = data.collaborators.map( collaborator => collaborator.value);
+        dispatch(fetchCreateTask(data));
     }
 
+    if (redirectData.path !== '') {
+        return <Redirect to={{ pathname: redirectData.path }} />
+    }
 
     return(
         <Fragment>
@@ -43,7 +58,7 @@ export const CreateTask = ({title}) => {
                     <label>Task title</label>
                     <Input 
                         register={register} 
-                        name="taskTitle" 
+                        name="title" 
                         rules={{ required: true, minLength: 6 }} 
                         label="Task title" 
                         type="text" 
@@ -65,7 +80,7 @@ export const CreateTask = ({title}) => {
                         render={ ({ field }) => (
                             <Select
                                 {...field} 
-                                options={USERS}
+                                options={users}
                                 placeholder="Select Responsible"
                             />
                         )}
@@ -76,16 +91,15 @@ export const CreateTask = ({title}) => {
                 </FormGroup>
                 <FormGroup>
                     <label>Collaborate</label>
-
                     <Controller
-                        name="collaborate"
+                        name="collaborators"
                         rules={{ required: true }}
                         control={control}
                         render={ ({ field }) => (
                             <Select
                                 {...field} 
                                 isMulti
-                                options={USERS}
+                                options={users}
                                 placeholder="Select Collaborate"
                             />
                         )}
@@ -98,7 +112,7 @@ export const CreateTask = ({title}) => {
                     <label>Due Date</label>
                     <div>
                         <Controller
-                            name="dueDateTask"
+                            name="due_date"
                             control={control}
                             rules={{ required: true }}
                             defaultValue={new Date()}
@@ -137,3 +151,5 @@ export const CreateTask = ({title}) => {
         </Fragment>
     )
 }
+
+export default CreateTask;

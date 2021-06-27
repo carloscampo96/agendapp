@@ -9,20 +9,25 @@ import { Splash } from './Splash';
 import { Signup } from './Signup';
 import { Signin } from './Signin';
 import { NotFound } from './NotFound';
-import { Home } from './Home';
-import { Schedule } from './Schedule';
-import { CreateTask } from './CreateTask';
-import { TaskDetail } from './TaskDetail';
-import { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, Suspense } from 'react';
 import { Menu } from "../components/Menu"
 import { PageWrapperMenu } from "../globalStyles";
+import { useSelector, useDispatch } from 'react-redux';
+import { autoLogin } from '../store';
+import { Loading } from '../components/Loading';
+import { redirectDone } from './../store';
+const Home = React.lazy(() => import('./Home'));
+const Schedule = React.lazy(() => import('./Schedule'));
+const CreateTask = React.lazy(() => import('./CreateTask'));
+const TaskDetail = React.lazy(() => import('./TaskDetail'));
 
 const AuthenticatedUser = ({children}) => {
 
+    const dispatch = useDispatch();
     const {pathname} = useLocation();
 
     useEffect(() => {
-        
+        dispatch(redirectDone());
     }, [pathname]);
 
     return (
@@ -41,25 +46,23 @@ const NotAuthenticatedUser = ({children}) => {
 
 export const NavigationApp = () => {
 
-    const [auth, setAuth] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const userData = useSelector(state => state.user)
+    const dispatch = useDispatch();
 
     useEffect(()  => {
         setTimeout( () => {
-            setAuth(true);
-            setIsLoading(false);
-        }, 1000)
+            dispatch(autoLogin());
+        }, 500)
     }, []);
 
-    if ( isLoading ) {
+    if ( userData.splash ) {
         return <Splash />
     }
 
     return (
         <Router>
             {
-                !auth && (
+                !userData.isAuth && (
                     <NotAuthenticatedUser>
                         <Switch>
                             <Route exact path="/" component={Signin} />
@@ -71,20 +74,28 @@ export const NavigationApp = () => {
             }
             
             {
-                auth && (
+                userData.isAuth && (
                     <AuthenticatedUser>
                         <Switch>
-                            <Route exact path="/"> 
-                                <Home title="Tasks"/>
+                            <Route exact path="/">
+                                <Suspense fallback={<Loading />}>
+                                    <Home title="Tasks"/>
+                                </Suspense> 
                             </Route>
                             <Route path="/schedule">
-                                <Schedule title="Schedules"/>
+                                <Suspense fallback={<Loading />}>
+                                    <Schedule title="Schedules"/>
+                                </Suspense> 
                             </Route>
                             <Route path="/create">
-                                <CreateTask title="Create newtask"/>
+                                <Suspense fallback={<Loading />}>
+                                    <CreateTask title="Create newtask"/>
+                                </Suspense>
                             </Route>
                             <Route path="/detail/:id"> 
-                                <TaskDetail title="Task detail"/>
+                                <Suspense fallback={<Loading />}>
+                                    <TaskDetail title="Task detail"/>
+                                </Suspense>
                             </Route>
                             <Route path="*" component={NotFound} />
                         </Switch>

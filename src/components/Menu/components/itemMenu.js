@@ -7,6 +7,5 @@ export const ItemMenu = ({label, icon: Icon, path, active}) => (
             <Icon />
             <Label active={active}>{label}</Label>
         </Link>
-        
     </ItemWraper>
 )

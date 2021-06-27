@@ -29,9 +29,14 @@ export const PageWrapperMenu = styled.div`
 `;
 
 export const FormGroup = styled.div`
-  margin: 10 px 0px;
+  margin: 10px 0px;
   label{
     font-size: 0.95em;
     color: ${Theme1.grayText}
   }
+`;
+
+export const LabelError = styled.span`
+    color: ${ Theme1.danger };
+    font-weight: bold;
 `;

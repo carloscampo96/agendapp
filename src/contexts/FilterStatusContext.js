@@ -1,4 +1,4 @@
-import react, {createContext, useContext, useState} from 'react';
+import {createContext, useContext, useState} from 'react';
 import { STATUS_FILTER } from '../constants/TaskFilterStatus';
 
 const initialState= STATUS_FILTER.ALL; //all

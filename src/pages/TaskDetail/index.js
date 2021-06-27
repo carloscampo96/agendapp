@@ -1,13 +1,11 @@
 import React, {Fragment} from "react";
-import { useHistory, useParams } from "react-router";
+import { useHistory } from "react-router";
 import { Topbar } from "../../components/Topbar";
 import { getStatusById } from "../../constants/TaskStatus";
 import { TaskDueDate, TaskDescription, TaskFooter, TaskResponsable, TaskStatusLabel, TaskTitle } from "./styles";
 
-export const TaskDetail = ({title}) => {
-    const history = useHistory();
-    const { id } = useParams();
-    
+const TaskDetail = ({title}) => {
+    const history = useHistory();    
     const renderStatus = (id) => {
         const status = getStatusById(id);
         return <TaskStatusLabel color={status.color}>{status.name}</TaskStatusLabel>
@@ -31,3 +29,5 @@ export const TaskDetail = ({title}) => {
         </Fragment>
     )
 }
+
+export default TaskDetail;

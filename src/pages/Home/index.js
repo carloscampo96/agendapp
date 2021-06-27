@@ -1,107 +1,62 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Task } from "../../components/Task";
-import { TASK_STATUS } from "../../constants/TaskStatus";
 import { TaskFilter } from "./components/TaskFilter";
-import { STATUS_FILTER } from "../../constants/TaskFilterStatus"
 import { useFilterStatus } from "../../contexts/FilterStatusContext";
 import { Topbar } from "../../components/Topbar";
+import { connect } from 'react-redux';
+import { fetchTasks } from '../../store'
+import { STATUS_FILTER } from "../../constants/TaskFilterStatus";
+ 
+const Home = ({title, taskData, fetchTasksAction}) => {
 
-const TASK_LIST = [
-  {
-    id: 1,
-    name: "Web design",
-    responsable: "Luis",
-    timeLeft: 2,
-    status: 1,
-  },
-  {
-    id: 2,
-    name: "Hacer revisión",
-    responsable: "Maria",
-    timeLeft: 4,
-    status: 1,
-  },
-  {
-    id: 3,
-    name: "Hacer estilos",
-    responsable: "Martin",
-    timeLeft: 6,
-    status: 3,
-  },
-  {
-    id: 4,
-    name: "Conectar con api",
-    responsable: "Luisa",
-    timeLeft: 12,
-    status: 2,
-  },
-  {
-    id: 5,
-    name: "Conectar servicio web",
-    responsable: "Jose",
-    timeLeft: 4,
-    status: 4,
-  },
-  {
-    id: 6,
-    name: "Web design",
-    responsable: "Luis",
-    timeLeft: 2,
-    status: 1,
-  },
-  {
-    id: 7,
-    name: "Hacer revisión",
-    responsable: "Maria",
-    timeLeft: 4,
-    status: 1,
-  },
-  {
-    id: 8,
-    name: "Hacer estilos",
-    responsable: "Martin",
-    timeLeft: 6,
-    status: 3,
-  },
-  {
-    id: 9,
-    name: "Conectar con api",
-    responsable: "Luisa",
-    timeLeft: 12,
-    status: 2,
-  },
-  {
-    id: 10,
-    name: "Conectar servicio web",
-    responsable: "Jose",
-    timeLeft: 4,
-    status: 4,
-  },
-];
-
-export const Home = ({title}) => {
-
-  const [taskList, setTaskList] = useState([]);
   const { currentTasksFilter } = useFilterStatus();
 
+  useEffect(() => { 
+    console.log('task state from store', taskData)
+  }, [taskData]);
+
+  useEffect(() => { 
+    fetchTasksAction();
+  }, []);
+
   useEffect(() => {
-    if (currentTasksFilter === STATUS_FILTER.ALL) {
-      setTaskList(TASK_LIST);
+    if(currentTasksFilter === STATUS_FILTER.ALL) {
+      fetchTasksAction();
     } else {
-      const taskFiltered = TASK_LIST.filter(el => el.status === currentTasksFilter);
-      setTaskList(taskFiltered);
+      fetchTasksAction({ status: currentTasksFilter });
     }
-  }, [currentTasksFilter]);
+  }, [currentTasksFilter])
+
 
   return (
     <>
       <Topbar title={title}/>
       <TaskFilter/>
+      {
+        taskData.loading && <p>Loading...</p>
+      }
+      {
+        taskData.error && <p>{taskData.error}</p>
+      }
       <div>
-        {taskList.map((item, key) => (
+        {taskData.tasks.map((item, key) => (
           <Task key={key} {...item} />
         ))}
       </div>
     </>
   );
 };
+
+const mapStateToProps = state => {
+  return {
+    taskData: state.task
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchTasksAction: (filter) => dispatch(fetchTasks(filter))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

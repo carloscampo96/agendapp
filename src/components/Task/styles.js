@@ -32,13 +32,13 @@ export const TimeLeft = styled.div`
     flex: 1;
     justify-content: center;
     svg {
-        color: #616161;
+    color: #616161;
     }
     p {
-        font-size: 0.90em;
-        color: #616161;
-        margin: 0 10px;
-        padding: 0;        
+    font-size: 0.9em;
+    color: #616161;
+    margin: 0 10px;
+    padding: 0;
     }
 `;
 

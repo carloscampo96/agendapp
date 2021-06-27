@@ -25,7 +25,7 @@ const CALENDAR_VIEW_MODE = {
     WEEK: 'week'
 };
 
-export const Schedule = ({title}) => {
+const Schedule = ({title}) => {
 
     const [calendarDefaultView, setCalendarDefaultView] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -70,3 +70,5 @@ export const Schedule = ({title}) => {
     )
     
 }
+
+export default Schedule;
